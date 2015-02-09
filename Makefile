@@ -43,23 +43,23 @@ STRIP = $(CROSS_COMPILE)strip
 RM = rm -f
 
 OBJS = $(SRCS:.c=$(BIN_POSTFIX).o)
-DEPS = $(OBJS:.o=.o.d)
-
-# pull in dependency info for *existing* .o files
--include $(DEPS)
-
-all: $(TARGET)
+DEPS = $(OBJS:.o=$(BIN_POSTFIX).o.d)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
-	#$(STRIP) $@ 
+#	#$(STRIP) $@ 
 
 %$(BIN_POSTFIX).o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 	$(CC) -MM $(CFLAGS) $< > $@.d
 
+all: $(TARGET)
+
 clean:
-	$(RM) $(OBJS) $(PROG) $(DEPS)
+	$(RM) $(OBJS) $(PROG) $(DEPS) $(TARGET)
+
+# pull in dependency info for *existing* .o files
+-include $(DEPS)
 
 .PHONY: all clean
 
