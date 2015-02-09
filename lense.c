@@ -10,6 +10,9 @@ int main(int argc,char **argv)
         GstElement *deinterlace;
         GstElement *nv_video_mixer;
         GstElement *video_sink;
+	GMainLoop *loop;
+
+        loop = g_main_loop_new (NULL, FALSE);
 
 	video_source = gst_element_factory_make ("v4l2src", "video_source_live");
 	if (!video_source) {
@@ -41,6 +44,21 @@ int main(int argc,char **argv)
 	{
 		fprintf(stderr, "created Empty pipeline\n");
 	}
+
+
+        /* add elements to the pipline */
+        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, \
+                                nv_video_mixer, video_sink, NULL);
+
+        /* link elements available in the bin */
+        if (gst_element_link_many(video_source, deinterlace, \
+                        nv_video_mixer, video_sink, NULL) != TRUE) {
+		g_printerr ("Not all live video elements were linked.\n");
+		return FALSE;
+        }
+	gst_element_set_state (pipeline, GST_STATE_PLAYING);
+
+	g_main_loop_run (loop);
 
 	return 0;
 }
