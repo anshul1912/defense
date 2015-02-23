@@ -3,7 +3,7 @@ SRCS=lense.c
 TARGET=lense
 
 # Set flags to the compiler and linker
-CFLAGS += -O0 -g -Wall `$(PKG-CONFIG) --cflags gtk+-2.0 gstreamer-0.10` $(ARCH_CFLAGS)
+CFLAGS += -O0 -g -Wall `$(PKG-CONFIG) --cflags gstreamer-0.10` $(ARCH_CFLAGS)
 LDFLAGS += `$(PKG-CONFIG) --libs gstreamer-0.10 gtk+-2.0` -lm
 
 ##############################################################################
@@ -12,9 +12,9 @@ LDFLAGS += `$(PKG-CONFIG) --libs gstreamer-0.10 gtk+-2.0` -lm
 
 # Set the path to the target libraries, i.e. the images rootfs
 # Set the prefix for the cross compiler
-OECORE_NATIVE_SYSROOT ?= /home/tej/oe-core-test/build/out-eglibc/sysroots/x86_64-linux/
-OECORE_TARGET_SYSROOT ?= /home/tej/oe-core-test/build/out-eglibc/sysroots/colibri-t20/
-CROSS_COMPILE ?= $(OECORE_NATIVE_SYSROOT)/usr/bin/armv7at2hf-vfp-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-
+#OECORE_NATIVE_SYSROOT ?= /home/tej/oe-core-test/build/out-eglibc/sysroots/x86_64-linux/
+#OECORE_TARGET_SYSROOT ?= /home/tej/oe-core-test/build/out-eglibc/sysroots/colibri-t20/
+#CROSS_COMPILE ?= $(OECORE_NATIVE_SYSROOT)/usr/bin/armv7at2hf-vfp-angstrom-linux-gnueabi/arm-angstrom-linux-gnueabi-
 
 ifneq ($(strip $(CROSS_COMPILE)),)
   LDFLAGS += -L$(OECORE_TARGET_SYSROOT)usr/lib -Wl,-rpath-link,$(OECORE_TARGET_SYSROOT)usr/lib -L$(OECORE_TARGET_SYSROOT)lib -Wl,-rpath-link,$(OECORE_TARGET_SYSROOT)lib

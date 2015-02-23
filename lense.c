@@ -26,18 +26,24 @@ int main(int argc,char **argv)
 		return -1;
 	}
 
-
+#if 0
 	nv_video_mixer = gst_element_factory_make ("nv_omx_videomixer", "nv_video_mixer_live");
 	if(!nv_video_mixer) {
 		fprintf(stderr,"Unable to create element nv_video_mixer\n");
 		return -1;
 	}
+#endif
+
 
 	video_sink = gst_element_factory_make ("nv_gl_eglimagesink", "video_sink_live");
+	if (!video_sink) {
+		video_sink = gst_element_factory_make ("autovideosink", "video_sink_live");
+	}
 	if (!video_sink) {
 		fprintf(stderr,"Unable to create element video sink live\n");
 		return -1;
 	}
+
 	/* Create the empty pipeline */
 	GstElement *pipeline = gst_pipeline_new ("pipeline");
 	if( !pipeline )
@@ -45,14 +51,26 @@ int main(int argc,char **argv)
 		fprintf(stderr, "created Empty pipeline\n");
 	}
 
-
+#if 0
         /* add elements to the pipline */
         gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, \
                                 nv_video_mixer, video_sink, NULL);
+#endif
+        /* add elements to the pipline */
+        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, \
+                                video_sink, NULL);
 
+#if 0
         /* link elements available in the bin */
         if (gst_element_link_many(video_source, deinterlace, \
                         nv_video_mixer, video_sink, NULL) != TRUE) {
+		g_printerr ("Not all live video elements were linked.\n");
+		return FALSE;
+        }
+#endif
+        /* link elements available in the bin */
+        if (gst_element_link_many(video_source, deinterlace, \
+                        video_sink, NULL) != TRUE) {
 		g_printerr ("Not all live video elements were linked.\n");
 		return FALSE;
         }

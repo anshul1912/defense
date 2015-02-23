@@ -22,23 +22,24 @@
 #include <gst/gst.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>
-
+#include <gst/video/video.h>
 #include "lensecorrection.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_lense_correction_debug);
 #define GST_CAT_DEFAULT gst_lense_correction_debug
 
-/* Filter signals and args */
+/* Lense Correction properties */
 enum
 {
-  /* FILL ME */
-  LAST_SIGNAL
+	PROP_0,
+	PROP_SILENT
+	/* FILL ME */
 };
 
 enum
 {
-  PROP_0,
-  PROP_SILENT,
+  /* FILL ME */
+  LAST_SIGNAL
 };
 
 /* the capabilities of the inputs and outputs.
@@ -76,8 +77,6 @@ static void gst_lense_correction_set_property (GObject * object, guint prop_id,
 static void gst_lense_correction_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static GstFlowReturn gst_lense_correction_transform_ip (GstBaseTransform * base,
-    GstBuffer * outbuf);
 
 /* GObject vmethod implementations */
 
@@ -96,24 +95,6 @@ gst_lense_correction_base_init (gpointer klass)
       gst_static_pad_template_get (&src_template));
   gst_element_class_add_pad_template (element_class,
       gst_static_pad_template_get (&sink_template));
-}
-
-/* initialize the plugin's class */
-static void
-gst_lense_correction_class_init (GstLenseCorrectionClass * klass)
-{
-  GObjectClass *gobject_class;
-
-  gobject_class = (GObjectClass *) klass;
-  gobject_class->set_property = gst_lense_correction_set_property;
-  gobject_class->get_property = gst_lense_correction_get_property;
-
-  g_object_class_install_property (gobject_class, PROP_SILENT,
-    g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
-          FALSE, G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE));
-
-  GST_BASE_TRANSFORM_CLASS (klass)->transform_ip =
-      GST_DEBUG_FUNCPTR (gst_lense_correction_transform_ip);
 }
 
 /* initialize the new element
@@ -141,43 +122,58 @@ gst_lense_correction_set_property (GObject * object, guint prop_id,
   }
 }
 
-static void
-gst_lense_correction_get_property (GObject * object, guint prop_id,
+static void gst_lense_correction_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-  GstLenseCorrection *filter = GST_LENSE_CORRECTION (object);
+	GstLenseCorrection *filter = GST_LENSE_CORRECTION (object);
 
-  switch (prop_id) {
-    case PROP_SILENT:
-      g_value_set_boolean (value, filter->silent);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-  }
+	switch (prop_id) {
+	case PROP_SILENT:
+		g_value_set_boolean (value, filter->silent);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
-/* GstBaseTransform vmethod implementations */
-
-/* this function does the actual processing
- */
-static GstFlowReturn
-gst_lense_correction_transform_ip (GstBaseTransform * base, GstBuffer * outbuf)
+static gboolean gst_lense_correction_set_caps (GstBaseTransform *object, GstCaps * incaps, GstCaps * outcaps)
 {
-  GstLenseCorrection *filter = GST_LENSE_CORRECTION (base);
+	GstVideoFormat in_format, out_format;
+	GstLenseCorrection *filter = GST_LENSE_CORRECTION (object);
+	int ret = 0;
+	ret = gst_video_format_parse_caps (incaps, &in_format, &filter->from_width, &filter->from_height);
+	if (ret != 0)
+	{
+		g_print ("Unable to get cap of input %d\n", ret);
+		return FALSE;
+	}
 
-  if (GST_CLOCK_TIME_IS_VALID (GST_BUFFER_TIMESTAMP (outbuf)))
-    gst_object_sync_values (G_OBJECT (filter), GST_BUFFER_TIMESTAMP (outbuf));
+	ret = gst_video_format_parse_caps (outcaps, &out_format, &filter->to_width, &filter->to_height);
+	if(ret != 0)
+	{
+		g_print ("Unable to get cap of output\n");
+		return FALSE;
+	}
 
-  if (filter->silent == FALSE)
-    g_print ("I'm plugged, therefore I'm in.\n");
-  
-  /* FIXME: do something interesting here.  This simply copies the source
-   * to the destination. */
-
-  return GST_FLOW_OK;
+	if (in_format != out_format)
+	{
+		g_print ("We dont conver format\n");
+		return FALSE;
+	}
+	g_print ("Here is the cap of element\n");
+	return TRUE;
 }
+/* GstBaseTransform vmethod implementations */
+static GstFlowReturn gst_lense_correction_transform(GstBaseTransform *trans, GstBuffer *inbuf,
+                                 GstBuffer *outbuf)
+{
+	const guint8 *src = GST_BUFFER_DATA (inbuf);
+	guint8* dest = GST_BUFFER_DATA (outbuf);
 
+	g_print ("Got In and out\n");
+	return GST_FLOW_OK;
+}
 
 /* entry point to initialize the plug-in
  * initialize the plug-in itself
@@ -205,3 +201,25 @@ GST_PLUGIN_DEFINE (
     "GStreamer",
     "http://openfeather.com/"
 )
+
+/* initialize the plugin's class */
+static void
+gst_lense_correction_class_init (GstLenseCorrectionClass * klass)
+{
+	GObjectClass *gobject_class;
+	GstBaseTransformClass *lense_class = (GstBaseTransformClass *) klass;
+
+	gobject_class = (GObjectClass *) klass;
+	gobject_class->set_property = gst_lense_correction_set_property;
+	gobject_class->get_property = gst_lense_correction_get_property;
+	lense_class->set_caps = GST_DEBUG_FUNCPTR (gst_lense_correction_set_caps);
+/*
+	g_object_class_install_property (gobject_class, PROP_METHOD,
+		g_param_spec_enum ("method", "method", "method",
+		GST_TYPE_VIDEO_FLIP_METHOD, PROP_METHOD_DEFAULT,
+		GST_PARAM_CONTROLLABLE | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+*/
+	//GST_BASE_TRANSFORM_CLASS (klass)->transform_ip =  GST_DEBUG_FUNCPTR (gst_lense_correction_transform_ip);
+	GST_BASE_TRANSFORM_CLASS (klass)->transform = GST_DEBUG_FUNCPTR (gst_lense_correction_transform);
+}
+

@@ -25,9 +25,10 @@ typedef struct _GstLenseCorrection      GstLenseCorrection;
 typedef struct _GstLenseCorrectionClass GstLenseCorrectionClass;
 
 struct _GstLenseCorrection {
-  GstBaseTransform element;
-
-  gboolean silent;
+	GstBaseTransform element;
+	gint from_width, from_height;
+	gint to_width, to_height;
+	gboolean silent;
 };
 
 struct _GstLenseCorrectionClass {
