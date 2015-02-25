@@ -1,7 +1,6 @@
 *.lo
 *.la
 *.o
-autogen.sh
 3rdparty_dependency/
 aclocal.m4
 ar-lib
