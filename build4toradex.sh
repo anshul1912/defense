@@ -4,9 +4,11 @@ OECORE_NATIVE_SYSROOT=/home/ghansham/tej/oe-core-test/build/out-eglibc/sysroots/
 OECORE_TARGET_SYSROOT=/home/ghansham/tej/oe-core-test/build/out-eglibc/sysroots/colibri-t20/
 export PATH=${OECORE_NATIVE_SYSROOT}usr/bin/armv7at2hf-vfp-angstrom-linux-gnueabi:$PATH
 CROSS_COMPILE=arm-angstrom-linux-gnueabi
+PREFIX=/home/ghansham/defense/usr/
 
+#cd gst-lensecorrect-plugin
 make distclean
-./configure --prefix=/home/ghansham/defense/usr/ \
+./configure --prefix=${PREFIX} \
           --host=${CROSS_COMPILE} \
           --with-sysroot=${OECORE_TARGET_SYSROOT} \
           PKG_CONFIG=${CROSS_COMPILE}-pkg-config-sysroot \

@@ -1,0 +1,8 @@
+To compile and install on x86, follow below steps.
+./configure
+make
+make install
+
+To compile and install on Toradex t20, follow below steps.
+./build4toradex.sh
+./install4toradex.sh <ipaddress of target board>

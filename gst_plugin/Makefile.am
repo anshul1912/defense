@@ -19,7 +19,10 @@ liblensecorrection_la_SOURCES = lensecorrection.c lensecorrection.h
 # compiler and linker flags used to compile this plugin, set in configure.ac
 liblensecorrection_la_CFLAGS = $(GST_CFLAGS)
 liblensecorrection_la_LIBADD = $(GST_LIBS)
-liblensecorrection_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -lgstvideo-0.10 -lgstinterfaces-0.10
+liblensecorrection_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)\
+                                -lgstvideo-0.10 \
+                                -lgstinterfaces-0.10 \
+                                -lgstcontroller-0.10
 liblensecorrection_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed

@@ -8,17 +8,23 @@ dnl required versions of gstreamer and plugins-base
 GST_REQUIRED=0.10.16
 GSTPB_REQUIRED=0.10.16
 
-AC_CONFIG_SRCDIR([src/lensecorrection.c])
+AC_CONFIG_SRCDIR(gst_plugin/lensecorrection.c)
+AC_CONFIG_SRCDIR(Application/lense.c)
+
 AC_CONFIG_HEADERS([config.h])
 
 dnl required version of automake
 AM_INIT_AUTOMAKE([1.10])
+dnl AM_INIT_AUTOMAKE([1.10 foreign -Wall -Werror])
 
 dnl enable mainainer mode by default
 AM_MAINTAINER_MODE([enable])
 
 dnl check for tools (compiler etc.)
 AC_PROG_CC
+
+m4_pattern_allow([AM_PROG_AR])
+AM_PROG_AR
 
 dnl required version of libtool
 LT_PREREQ([2.2.6])
@@ -82,6 +88,6 @@ dnl set proper LDFLAGS for plugins
 GST_PLUGIN_LDFLAGS='-module -avoid-version -export-symbols-regex [_]*\(gst_\|Gst\|GST_\).*'
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
-AC_OUTPUT
 
+AC_CONFIG_FILES([Makefile gst_plugin/Makefile Application/Makefile])
+AC_OUTPUT

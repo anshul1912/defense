@@ -3,10 +3,13 @@ struct lense_ctx
 {
 	int mpty;
 };
+
+#define TORADEX
 int main(int argc,char **argv)
 {
 	gst_init (&argc, &argv);
         GstElement *video_source;
+        GstElement *lensecorrection;
         GstElement *deinterlace;
         GstElement *nv_video_mixer;
         GstElement *video_sink;
@@ -16,7 +19,13 @@ int main(int argc,char **argv)
 
 	video_source = gst_element_factory_make ("v4l2src", "video_source_live");
 	if (!video_source) {
-		fprintf(stderr,"Unable to create element v4l2src\n");
+		fprintf(stderr,"Unable to create element nv4l2src\n");
+		return -1;
+	}
+
+	lensecorrection = gst_element_factory_make ("lensecorrection", "lensecorrection");
+	if(!lensecorrection) {
+		fprintf(stderr,"Unable to create element lensecorrection\n");
 		return -1;
 	}
 
@@ -26,7 +35,7 @@ int main(int argc,char **argv)
 		return -1;
 	}
 
-#if 0
+#ifdef TORADEX
 	nv_video_mixer = gst_element_factory_make ("nv_omx_videomixer", "nv_video_mixer_live");
 	if(!nv_video_mixer) {
 		fprintf(stderr,"Unable to create element nv_video_mixer\n");
@@ -51,29 +60,30 @@ int main(int argc,char **argv)
 		fprintf(stderr, "created Empty pipeline\n");
 	}
 
-#if 0
+#ifdef TORADEX
         /* add elements to the pipline */
-        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, \
-                                nv_video_mixer, video_sink, NULL);
-#endif
+        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, lensecorrection,
+                                                        nv_video_mixer, video_sink, NULL);
+#else
         /* add elements to the pipline */
-        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, \
+        gst_bin_add_many (GST_BIN (pipeline), video_source, deinterlace, lensecorrection,
                                 video_sink, NULL);
-
-#if 0
+#endif
+#ifdef TORADEX
         /* link elements available in the bin */
-        if (gst_element_link_many(video_source, deinterlace, \
+        if (gst_element_link_many(video_source, deinterlace, lensecorrection, \
                         nv_video_mixer, video_sink, NULL) != TRUE) {
 		g_printerr ("Not all live video elements were linked.\n");
 		return FALSE;
         }
-#endif
+#else
         /* link elements available in the bin */
-        if (gst_element_link_many(video_source, deinterlace, \
+        if (gst_element_link_many(video_source, deinterlace, lensecorrection, \
                         video_sink, NULL) != TRUE) {
 		g_printerr ("Not all live video elements were linked.\n");
 		return FALSE;
         }
+#endif
 	gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
 	g_main_loop_run (loop);
