@@ -2,11 +2,11 @@ dnl required version of autoconf
 AC_PREREQ([2.53])
 
 dnl TODO: fill in your package name and package version here
-AC_INIT([my-plugin-package],[0.10.0])
+AC_INIT([gst_lense],[0.10.0])
 
 dnl required versions of gstreamer and plugins-base
-GST_REQUIRED=0.10.16
-GSTPB_REQUIRED=0.10.16
+GST_REQUIRED=0.10.36
+GSTPB_REQUIRED=0.10.36
 
 AC_CONFIG_SRCDIR(gst_plugin/lensecorrection.c)
 AC_CONFIG_SRCDIR(Application/lense.c)
@@ -14,8 +14,7 @@ AC_CONFIG_SRCDIR(Application/lense.c)
 AC_CONFIG_HEADERS([config.h])
 
 dnl required version of automake
-AM_INIT_AUTOMAKE([1.10])
-dnl AM_INIT_AUTOMAKE([1.10 foreign -Wall -Werror])
+AM_INIT_AUTOMAKE([1.10 foreign -Wall -Werror])
 
 dnl enable mainainer mode by default
 AM_MAINTAINER_MODE([enable])
@@ -23,7 +22,6 @@ AM_MAINTAINER_MODE([enable])
 dnl check for tools (compiler etc.)
 AC_PROG_CC
 
-m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 
 dnl required version of libtool
